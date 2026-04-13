@@ -1,0 +1,28 @@
+Sons requis pour Al-Léa
+=======================
+
+Placer ici les fichiers audio au format .mp3 (ou .ogg) :
+
+Routine soir :
+  marche.mp3       — Son de pas sur un trottoir
+  recreation.mp3   — Son de cour de récréation
+  jeux.mp3         — Grelot / sons de jouets
+  porte.mp3        — Son de porte qui s'ouvre
+  repas.mp3        — Son d'ustensiles / cloche dîner
+  eau.mp3          — Son d'eau qui coule
+  dents.mp3        — Son de brosse à dents
+  livre.mp3        — Son de page qui tourne
+  berceuse.mp3     — Mélodie berceuse courte
+
+Routine matin :
+  reveil.mp3       — Sonnerie de réveil douce
+  musique.mp3      — Mélodie joyeuse courte
+  eau_matin.mp3    — Gouttes d'eau
+  cuisine.mp3      — Son de cuisine / tasse
+  ding.mp3         — Son léger / ding
+  fermeture.mp3    — Son de fermeture éclair
+  porte_ferme.mp3  — Son de porte qui se ferme
+
+Source suggérée : https://freesound.org (sons libres de droits)
+
+Si un fichier est absent, l'application fonctionne normalement sans le son.

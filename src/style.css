@@ -1,0 +1,484 @@
+/* Al-Léa — style.css */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ═══════════════════════════════════════
+   HORLOGE (overlay fixe en haut)
+═══════════════════════════════════════ */
+
+.clock-overlay {
+  position: fixed;
+  top: env(safe-area-inset-top, 0.3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.45;
+  color: #1c1c1e;
+  pointer-events: auto;
+  z-index: 100;
+  padding: 0.15rem 0.5rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.clock-overlay.clock-nuit {
+  color: #e8e8ff;
+}
+
+/* ═══════════════════════════════════════
+   PANNEAU DEBUG
+═══════════════════════════════════════ */
+
+#debug-panel {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0.8rem);
+  left: 0;
+  right: 0;
+  display: none;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  z-index: 200;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.debug-modes {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.debug-mode-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  opacity: 0.6;
+}
+
+.debug-mode-btn.active {
+  background: #4a90e2;
+  opacity: 1;
+}
+
+.debug-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 4rem;
+}
+
+.debug-slider {
+  flex: 1;
+  height: 0.5rem;
+  accent-color: #4a90e2;
+  cursor: pointer;
+}
+
+.debug-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* ═══════════════════════════════════════
+   THÈMES
+═══════════════════════════════════════ */
+
+.theme-nuit {
+  background: #1a1a2e;
+  color: #e8e8ff;
+}
+
+.theme-jour {
+  background: #f7f8fa;
+  color: #1c1c1e;
+}
+
+/* ═══════════════════════════════════════
+   ÉCRAN ROUTINE — PORTRAIT
+═══════════════════════════════════════ */
+
+.screen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: env(safe-area-inset-top, 0.8rem) 1.2rem env(safe-area-inset-bottom, 1rem) 1.2rem;
+}
+
+/* Zone emoji — ~55 % de la hauteur */
+.emoji-zone {
+  flex: 55;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Nom de l'étape en cours */
+.step-name {
+  font-size: clamp(0.75rem, 3vw, 1.1rem);
+  opacity: 0.4;
+  text-align: center;
+  flex-shrink: 0;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emoji-main {
+  font-size: min(30vh, 60vw);
+  line-height: 1;
+}
+
+/* Zone info — ~45 % de la hauteur */
+.info-zone {
+  flex: 45;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.4rem;
+  min-height: 0;
+}
+
+/* Compte à rebours */
+.countdown {
+  font-size: clamp(1.4rem, 6vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Barre de progression */
+.progress-track {
+  width: 100%;
+  height: clamp(1.2rem, 4vw, 2rem);
+  border-radius: 2rem;
+  background: rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.theme-nuit .progress-track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2rem;
+  background: linear-gradient(90deg, #4a90e2, #7ec8e3);
+}
+
+/* Prochaine étape */
+.next-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  gap: 0.8rem;
+  opacity: 0.72;
+}
+
+.next-label-text {
+  white-space: nowrap;
+}
+
+/* Colonne gauche : nom + heure */
+.next-info-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.next-step-name {
+  font-size: clamp(0.75rem, 3vw, 1rem);
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.next-step-time {
+  font-size: clamp(0.75rem, 3vw, 1rem);
+  opacity: 0.9;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.emoji-next {
+  font-size: min(9vh, 16vw);
+  line-height: 1;
+}
+
+/* Espace supplémentaire quand le panneau debug est visible */
+.debug-active .screen {
+  padding-bottom: calc(env(safe-area-inset-bottom, 1rem) + 4.5rem);
+}
+
+/* Boutons navigation */
+.nav-zone {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.15rem;
+}
+
+.nav-zone-check {
+  justify-content: center;
+}
+
+/* Gros bouton ✅ */
+.btn-next-check {
+  width: clamp(4.5rem, 18vw, 7rem);
+  height: clamp(4.5rem, 18vw, 7rem);
+  border: none;
+  border-radius: 50%;
+  font-size: clamp(2.2rem, 10vw, 3.5rem);
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: rgba(74, 200, 110, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.btn-next-check:active {
+  transform: scale(0.92);
+  background: rgba(74, 200, 110, 0.3);
+}
+
+.theme-nuit .btn-next-check {
+  background: rgba(74, 200, 110, 0.2);
+}
+
+/* Bouton Précédent caché (fixe, bas-gauche) */
+.btn-prev-fixed {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 1rem);
+  left: 1rem;
+  width: 4rem;
+  height: 3rem;
+  border: none;
+  border-radius: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: transparent;
+  color: transparent;
+  opacity: 0;
+  z-index: 50;
+}
+
+.btn-prev-unlocked {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+
+.theme-nuit .btn-prev-unlocked {
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+/* ─── Feu d'artifice ─────────────────────── */
+
+.fw-overlay {
+  position: fixed;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.fw-particle {
+  position: absolute;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--color, #ffd93d);
+  animation: fw-burst 0.78s ease-out var(--delay, 0ms) both;
+}
+
+@keyframes fw-burst {
+  0%   { transform: rotate(var(--angle)) translateX(0)           scale(1);   opacity: 1; }
+  65%  {                                                                       opacity: 1; }
+  100% { transform: rotate(var(--angle)) translateX(var(--dist)) scale(0.2); opacity: 0; }
+}
+
+.nav-btn {
+  flex: 1;
+  padding: clamp(0.7rem, 3vw, 1.1rem) 0.5rem;
+  border: none;
+  border-radius: 2rem;
+  font-size: clamp(1rem, 4vw, 1.4rem);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+
+.nav-btn:active {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.theme-nuit .nav-btn {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.theme-nuit .nav-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ═══════════════════════════════════════
+   ÉCRANS HORS-ROUTINE
+   (Nuit, Journée, Weekend)
+═══════════════════════════════════════ */
+
+.screen-off {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  gap: 1.4rem;
+  text-align: center;
+}
+
+.screen-off .emoji-main {
+  font-size: min(42vh, 80vw);
+}
+
+.msg-primary {
+  font-size: clamp(1.6rem, 6.5vw, 2.6rem);
+  font-weight: 700;
+}
+
+.msg-secondary {
+  font-size: clamp(1.1rem, 4.5vw, 1.8rem);
+  opacity: 0.72;
+}
+
+/* Écran hors-routine via navigation manuelle (avec bouton) */
+.screen-off-nav {
+  justify-content: space-between;
+  padding-bottom: env(safe-area-inset-bottom, 1.5rem);
+}
+
+.screen-off-nav .off-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+}
+
+/* ═══════════════════════════════════════
+   MODE PAYSAGE
+═══════════════════════════════════════ */
+
+@media (orientation: landscape) {
+  .screen {
+    flex-direction: row;
+    padding: 0.6rem 1.5rem 0.6rem 1.5rem;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .emoji-zone {
+    flex: 0 0 42%;
+    width: 42%;
+  }
+
+  .emoji-main {
+    font-size: min(76vh, 36vw);
+  }
+
+  .info-zone {
+    flex: 1;
+    width: auto;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  /* Écrans hors-routine paysage */
+  .screen-off {
+    flex-direction: row;
+    justify-content: center;
+    gap: 3rem;
+    text-align: left;
+  }
+
+  .screen-off .emoji-main {
+    font-size: min(80vh, 30vw);
+  }
+
+  .screen-off .off-content,
+  .screen-off > :not(.nav-zone) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .screen-off-nav {
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .screen-off-nav .off-content {
+    flex-direction: row;
+    gap: 3rem;
+  }
+}
