@@ -464,9 +464,9 @@ function render() {
         <button class="debug-close" onclick="toggleDebug()">✕</button>
       </div>
       <div class="debug-row2">
-        <button class="debug-step-btn" onclick="onDebugStep(-10)">−</button>
+        <button class="debug-step-btn" onclick="onDebugStep(-7)">−</button>
         <span class="debug-label">⏱ ${fmtClock(debugTimeSec)}</span>
-        <button class="debug-step-btn" onclick="onDebugStep(10)">+</button>
+        <button class="debug-step-btn" onclick="onDebugStep(7)">+</button>
       </div>
     `;
   } else {

@@ -27,5 +27,5 @@ const ROUTINES = {
 // Limites des routines en secondes depuis minuit
 const BOUNDS = {
   matin: { start: 6 * 3600 + 50 * 60, end: 8 * 3600 + 25 * 60   },
-  soir:  { start: 17 * 3600 + 20 * 60, end: 19 * 3600 + 45 * 60 },
+  soir:  { start: 17 * 3600 + 20 * 60, end: 20 * 3600 + 15 * 60 },
 };
