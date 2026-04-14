@@ -111,11 +111,18 @@ html, body {
   min-width: 4rem;
 }
 
-.debug-slider {
-  flex: 1;
-  height: 0.5rem;
-  accent-color: #4a90e2;
+.debug-step-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1;
   cursor: pointer;
+  touch-action: manipulation;
+  flex-shrink: 0;
 }
 
 .debug-close,

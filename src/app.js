@@ -66,8 +66,8 @@ function setDebugRoutine(name) {
   render();
 }
 
-function onDebugSlider(val) {
-  debugTimeSec = parseInt(val, 10);
+function onDebugStep(delta) {
+  debugTimeSec += delta * 60;
   manualOffset = 0;
   render();
 }
@@ -453,9 +453,6 @@ function render() {
   // ─── Panneau debug ─────────────────────────────────
   const debugEl = document.getElementById('debug-panel');
   if (debugMode) {
-    const sliderMin = BOUNDS[debugRoutine].start - 10 * 60;
-    const sliderMax = BOUNDS[debugRoutine].end   + 10 * 60;
-    const sliderVal = Math.max(sliderMin, Math.min(sliderMax, debugTimeSec));
     debugEl.style.display = 'flex';
     debugEl.innerHTML = `
       <div class="debug-row1">
@@ -467,8 +464,9 @@ function render() {
         <button class="debug-close" onclick="toggleDebug()">✕</button>
       </div>
       <div class="debug-row2">
-        <span class="debug-label">⏱ ${fmtClock(sliderVal)}</span>
-        <input class="debug-slider" type="range" min="${sliderMin}" max="${sliderMax}" step="60" value="${sliderVal}" oninput="onDebugSlider(this.value)">
+        <button class="debug-step-btn" onclick="onDebugStep(-10)">−</button>
+        <span class="debug-label">⏱ ${fmtClock(debugTimeSec)}</span>
+        <button class="debug-step-btn" onclick="onDebugStep(10)">+</button>
       </div>
     `;
   } else {
