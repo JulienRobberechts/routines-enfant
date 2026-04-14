@@ -474,4 +474,4 @@ function render() {
 // ─── Démarrage ────────────────────────────────────
 
 render();
-setInterval(render, 10000000);
+setInterval(render, 3000);
