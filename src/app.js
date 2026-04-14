@@ -8,12 +8,42 @@ let lastStepKey     = '';  // détecte le changement d'étape pour réinitialise
 let prevBtnTapCount = 0;   // nombre de taps sur le bouton Précédent caché
 let prevBtnUnlocked = false; // true quand le bouton Précédent est déverrouillé
 
+// ─── Paramètres ───────────────────────────────────
+let settingsOpen = false;
+let isLoisir     = false;
+
 // ─── Mode debug ───────────────────────────────────
 let debugMode    = false;
 let debugTimeSec = 8 * 3600;
 let debugRoutine = 'matin';  // 'matin' | 'soir'
 let _tapCount    = 0;
 let _tapTimer    = null;
+
+// ─── Constantes ───────────────────────────────────
+const LOISIR_OFFSET = 50 * 60; // 50 minutes en secondes
+const VERSION = '1.2.0';
+
+// ─── Routines effectives (avec décalage loisirs) ──
+
+function getEffectiveBounds() {
+  if (!isLoisir) return BOUNDS;
+  return {
+    matin: { start: BOUNDS.matin.start + LOISIR_OFFSET, end: BOUNDS.matin.end + LOISIR_OFFSET },
+    soir:  { start: BOUNDS.soir.start  + LOISIR_OFFSET, end: BOUNDS.soir.end  + LOISIR_OFFSET },
+  };
+}
+
+function getEffectiveRoutines() {
+  if (!isLoisir) return ROUTINES;
+  function shiftStep(s) {
+    const sec = s.start[0] * 3600 + s.start[1] * 60 + LOISIR_OFFSET;
+    return { ...s, start: [Math.floor(sec / 3600), Math.floor((sec % 3600) / 60)] };
+  }
+  return {
+    matin: ROUTINES.matin.map(shiftStep),
+    soir:  ROUTINES.soir.map(shiftStep),
+  };
+}
 
 // ─── Utilitaires temps ───────────────────────────
 
@@ -39,21 +69,27 @@ function handleClockTap() {
   clearTimeout(_tapTimer);
   if (_tapCount >= 5) {
     _tapCount = 0;
-    toggleDebug();
+    toggleSettings();
   } else {
     _tapTimer = setTimeout(() => { _tapCount = 0; }, 2000);
   }
+}
+
+function toggleSettings() {
+  settingsOpen = !settingsOpen;
+  render();
 }
 
 function toggleDebug() {
   debugMode = !debugMode;
   if (debugMode) {
     // Choisir la routine la plus proche de l'heure actuelle
-    const sec = realNowSec();
-    const distMatin = Math.abs(sec - BOUNDS.matin.start);
-    const distSoir  = Math.abs(sec - BOUNDS.soir.start);
+    const sec    = realNowSec();
+    const bounds = getEffectiveBounds();
+    const distMatin = Math.abs(sec - bounds.matin.start);
+    const distSoir  = Math.abs(sec - bounds.soir.start);
     debugRoutine = distMatin <= distSoir ? 'matin' : 'soir';
-    debugTimeSec = BOUNDS[debugRoutine].start;
+    debugTimeSec = bounds[debugRoutine].start;
     manualOffset = 0;
   }
   render();
@@ -61,7 +97,7 @@ function toggleDebug() {
 
 function setDebugRoutine(name) {
   debugRoutine = name;
-  debugTimeSec = BOUNDS[name].start;
+  debugTimeSec = getEffectiveBounds()[name].start;
   manualOffset = 0;
   render();
 }
@@ -69,6 +105,15 @@ function setDebugRoutine(name) {
 function onDebugStep(delta) {
   debugTimeSec += delta * 60;
   manualOffset = 0;
+  render();
+}
+
+function setLoisir(val) {
+  isLoisir = val;
+  if (debugMode) {
+    debugTimeSec = getEffectiveBounds()[debugRoutine].start;
+    manualOffset = 0;
+  }
   render();
 }
 
@@ -145,19 +190,19 @@ function getState() {
     return { screen: 'weekend' };
   }
 
-  const { matin, soir } = BOUNDS;
+  const { matin, soir } = getEffectiveBounds();
 
-  // Routine matin [6h50, 8h25)
+  // Routine matin
   if (sec >= matin.start && sec < matin.end) {
     return buildRoutineState('matin', sec);
   }
 
-  // Routine soir [17h20, 19h45)
+  // Routine soir
   if (sec >= soir.start && sec < soir.end) {
     return buildRoutineState('soir', sec);
   }
 
-  // Nuit [19h45 → 6h50, passe minuit]
+  // Nuit [fin soir → début matin, passe minuit]
   if (sec >= soir.end || sec < matin.start) {
     const until = sec >= soir.end
       ? (24 * 3600 - sec) + matin.start
@@ -165,13 +210,13 @@ function getState() {
     return { screen: 'nuit', until };
   }
 
-  // Journée [8h25 → 17h20]
+  // Journée [fin matin → début soir]
   return { screen: 'journee', until: soir.start - sec };
 }
 
 function buildRoutineState(routineName, sec) {
-  const steps  = ROUTINES[routineName];
-  const bounds = BOUNDS[routineName];
+  const steps  = getEffectiveRoutines()[routineName];
+  const bounds = getEffectiveBounds()[routineName];
 
   // Étape auto : dernière étape dont l'heure de début ≤ sec
   let autoIdx = 0;
@@ -303,15 +348,16 @@ function navigate(dir) {
 
   if (!debugMode && (day === 0 || day === 6)) return;
 
-  const { matin, soir } = BOUNDS;
+  const bounds   = getEffectiveBounds();
+  const routines = getEffectiveRoutines();
   let routineName = null;
 
-  if      (sec >= matin.start && sec < matin.end) routineName = 'matin';
-  else if (sec >= soir.start  && sec < soir.end)  routineName = 'soir';
+  if      (sec >= bounds.matin.start && sec < bounds.matin.end) routineName = 'matin';
+  else if (sec >= bounds.soir.start  && sec < bounds.soir.end)  routineName = 'soir';
 
   if (!routineName) return;
 
-  const steps = ROUTINES[routineName];
+  const steps = routines[routineName];
   let autoIdx = 0;
   for (let i = 0; i < steps.length; i++) {
     if (sec >= toSec(steps[i].start)) autoIdx = i;
@@ -433,7 +479,7 @@ function render() {
       break;
   }
 
-  app.className = theme + (debugMode ? ' debug-active' : '');
+  app.className = theme + (settingsOpen ? ' debug-active' : '');
   app.innerHTML = html;
 
   // Attacher les listeners de navigation
@@ -450,35 +496,74 @@ function render() {
   clockEl.textContent = fmtClock(nowSec()) + (debugMode ? ' 🐛' : '');
   clockEl.className = 'clock-overlay' + (theme === 'theme-nuit' ? ' clock-nuit' : '');
 
-  // ─── Panneau debug ─────────────────────────────────
-  const debugEl = document.getElementById('debug-panel');
-  if (debugMode) {
-    debugEl.style.display = 'flex';
-    debugEl.innerHTML = `
-      <div class="debug-row1">
-        <div class="debug-modes">
-          <button class="debug-mode-btn${debugRoutine === 'matin' ? ' active' : ''}" onclick="setDebugRoutine('matin')">Matin</button>
-          <button class="debug-mode-btn${debugRoutine === 'soir'  ? ' active' : ''}" onclick="setDebugRoutine('soir')">Soir</button>
-        </div>
-        <button class="debug-print" onclick="printRoutine()">🖨️</button>
-        <button class="debug-close" onclick="toggleDebug()">✕</button>
+  // ─── Panneau paramètres ────────────────────────────
+  const panelEl = document.getElementById('debug-panel');
+  if (settingsOpen) {
+    panelEl.style.display = 'flex';
+    panelEl.innerHTML = renderSettingsPanel(theme);
+  } else {
+    panelEl.style.display = 'none';
+  }
+}
+
+function renderSettingsPanel(theme) {
+  const isNuit = theme === 'theme-nuit';
+
+  const debugSection = debugMode ? `
+    <div class="settings-debug-controls">
+      <div class="debug-modes">
+        <button class="debug-mode-btn${debugRoutine === 'matin' ? ' active' : ''}" onclick="setDebugRoutine('matin')">Matin</button>
+        <button class="debug-mode-btn${debugRoutine === 'soir'  ? ' active' : ''}" onclick="setDebugRoutine('soir')">Soir</button>
       </div>
       <div class="debug-row2">
         <button class="debug-step-btn" onclick="onDebugStep(-7)">−</button>
         <span class="debug-label">⏱ ${fmtClock(debugTimeSec)}</span>
         <button class="debug-step-btn" onclick="onDebugStep(7)">+</button>
       </div>
-    `;
-  } else {
-    debugEl.style.display = 'none';
-  }
+    </div>` : '';
+
+  return `
+    <div class="settings-header">
+      <span class="settings-title">⚙️ Paramètres</span>
+      <button class="debug-close" onclick="toggleSettings()">✕</button>
+    </div>
+
+    <div class="settings-body">
+      <div class="settings-row">
+        <span class="settings-row-label">🐛 Mode debug</span>
+        <button class="settings-toggle${debugMode ? ' active' : ''}" onclick="toggleDebug()">${debugMode ? 'ON' : 'OFF'}</button>
+      </div>
+      ${debugSection}
+
+      <div class="settings-divider"></div>
+
+      <div class="settings-row">
+        <span class="settings-row-label">📅 Journée type</span>
+        <div class="settings-choice">
+          <button class="settings-choice-btn${!isLoisir ? ' active' : ''}" onclick="setLoisir(false)">🏫 École</button>
+          <button class="settings-choice-btn${isLoisir ? ' active' : ''}" onclick="setLoisir(true)">🎨 Loisirs</button>
+        </div>
+      </div>
+      ${isLoisir ? `<div class="settings-info-row">⏱ Routine décalée de 50 min</div>` : ''}
+
+      <div class="settings-divider"></div>
+
+      <div class="settings-actions">
+        <button class="settings-action-btn" onclick="printRoutine()">🖨️ Imprimer la routine</button>
+        <button class="settings-action-btn" onclick="configRoutine()">📋 Configurer la routine</button>
+      </div>
+
+      <div class="settings-version">v${VERSION}</div>
+    </div>
+  `;
 }
 
 // ─── Impression de la routine ─────────────────────
 
 function printRoutine() {
-  const steps = ROUTINES[debugRoutine];
+  const steps = getEffectiveRoutines()[debugRoutine];
   const title = debugRoutine === 'matin' ? '🌅 Routine du matin' : '🌆 Routine du soir';
+  const suffix = isLoisir ? ' (Centre de loisirs)' : '';
 
   const rows = steps.map(s => `
     <tr>
@@ -491,7 +576,7 @@ function printRoutine() {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>${title}</title>
+  <title>${title}${suffix}</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 30px; background: #fff; }
     h1 { text-align: center; font-size: 2em; margin-bottom: 30px; }
@@ -510,7 +595,7 @@ function printRoutine() {
   </style>
 </head>
 <body>
-  <h1>${title}</h1>
+  <h1>${title}${suffix}</h1>
   <table>${rows}</table>
   <button class="print-btn" onclick="window.print()">🖨️ Imprimer</button>
 </body>
@@ -519,6 +604,41 @@ function printRoutine() {
   const win = window.open('', '_blank');
   win.document.write(html);
   win.document.close();
+}
+
+// ─── Configuration de la routine ─────────────────
+
+function configRoutine() {
+  toggleSettings();
+
+  const routines = getEffectiveRoutines();
+  const suffix   = isLoisir ? ' <span class="cfg-badge">+50 min</span>' : '';
+
+  const sections = ['matin', 'soir'].map(name => {
+    const steps = routines[name];
+    const title = name === 'matin' ? '🌅 Routine du matin' : '🌆 Routine du soir';
+    const rows = steps.map(s => `
+      <div class="cfg-step">
+        <span class="cfg-time">${fmtClock(toSec(s.start))}</span>
+        <span class="cfg-emoji">${s.emoji}</span>
+        <span class="cfg-label">${s.label}</span>
+      </div>`).join('');
+    return `
+      <div class="cfg-section">
+        <h2 class="cfg-title">${title}${suffix}</h2>
+        ${rows}
+      </div>`;
+  }).join('');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'config-overlay';
+  overlay.className = 'config-overlay';
+  overlay.innerHTML = `
+    <div class="config-content">
+      <button class="config-close-btn" onclick="document.getElementById('config-overlay').remove()">✕ Fermer</button>
+      ${sections}
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 // ─── Démarrage ────────────────────────────────────
