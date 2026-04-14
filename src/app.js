@@ -458,14 +458,18 @@ function render() {
     const sliderVal = Math.max(sliderMin, Math.min(sliderMax, debugTimeSec));
     debugEl.style.display = 'flex';
     debugEl.innerHTML = `
-      <div class="debug-modes">
-        <button class="debug-mode-btn${debugRoutine === 'matin' ? ' active' : ''}" onclick="setDebugRoutine('matin')">Matin</button>
-        <button class="debug-mode-btn${debugRoutine === 'soir'  ? ' active' : ''}" onclick="setDebugRoutine('soir')">Soir</button>
+      <div class="debug-row1">
+        <div class="debug-modes">
+          <button class="debug-mode-btn${debugRoutine === 'matin' ? ' active' : ''}" onclick="setDebugRoutine('matin')">Matin</button>
+          <button class="debug-mode-btn${debugRoutine === 'soir'  ? ' active' : ''}" onclick="setDebugRoutine('soir')">Soir</button>
+        </div>
+        <button class="debug-print" onclick="printRoutine()">🖨️</button>
+        <button class="debug-close" onclick="toggleDebug()">✕</button>
       </div>
-      <span class="debug-label">⏱ ${fmtClock(sliderVal)}</span>
-      <input class="debug-slider" type="range" min="${sliderMin}" max="${sliderMax}" step="60" value="${sliderVal}" oninput="onDebugSlider(this.value)">
-      <button class="debug-print" onclick="printRoutine()">🖨️</button>
-      <button class="debug-close" onclick="toggleDebug()">✕</button>
+      <div class="debug-row2">
+        <span class="debug-label">⏱ ${fmtClock(sliderVal)}</span>
+        <input class="debug-slider" type="range" min="${sliderMin}" max="${sliderMax}" step="60" value="${sliderVal}" oninput="onDebugSlider(this.value)">
+      </div>
     `;
   } else {
     debugEl.style.display = 'none';

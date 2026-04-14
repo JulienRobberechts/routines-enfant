@@ -1,0 +1,1 @@
+- en mode debug tous les boutons ne tiennent pas en largeur, il faut faire 2 lignes.
