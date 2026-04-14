@@ -16,11 +16,11 @@ const ROUTINES = {
     { start: [17, 30], label: 'Récupérer Léa',                emoji: '🏫', sound: 'recreation.mp3'  },
     { start: [17, 40], label: 'Jeux',                         emoji: '🧸', sound: 'jeux.mp3'        },
     { start: [18, 20], label: 'Retour maison',                emoji: '🏠', sound: 'porte.mp3'       },
-    { start: [18, 30], label: 'Repas',                        emoji: '🍽️', sound: 'repas.mp3'       },
-    { start: [19,  0], label: 'Bain ou douche',               emoji: '🛁', sound: 'eau.mp3'         },
-    { start: [19, 20], label: 'Pyjama & Dents',               emoji: '🪥', sound: 'dents.mp3'       },
-    { start: [19, 30], label: "Une histoire",                 emoji: '📖', sound: 'livre.mp3'       },
-    { start: [19, 45], label: 'Câlins & Dodo',                emoji: '🌙', sound: 'berceuse.mp3'    },
+    { start: [18, 30], label: 'Bain',                         emoji: '🛁', sound: 'eau.mp3'         },
+    { start: [19, 0], label: 'Repas',                         emoji: '🍽️', sound: 'repas.mp3'       },
+    { start: [19, 30], label: 'Pyjama & Dents',               emoji: '🪥', sound: 'dents.mp3'       },
+    { start: [20, 0], label: "Une histoire",                  emoji: '📖', sound: 'livre.mp3'       },
+    { start: [20, 15], label: 'Câlins & Dodo',                emoji: '🌙', sound: 'berceuse.mp3'    },
   ],
 };
 

@@ -464,11 +464,59 @@ function render() {
       </div>
       <span class="debug-label">⏱ ${fmtClock(sliderVal)}</span>
       <input class="debug-slider" type="range" min="${sliderMin}" max="${sliderMax}" step="60" value="${sliderVal}" oninput="onDebugSlider(this.value)">
+      <button class="debug-print" onclick="printRoutine()">🖨️</button>
       <button class="debug-close" onclick="toggleDebug()">✕</button>
     `;
   } else {
     debugEl.style.display = 'none';
   }
+}
+
+// ─── Impression de la routine ─────────────────────
+
+function printRoutine() {
+  const steps = ROUTINES[debugRoutine];
+  const title = debugRoutine === 'matin' ? '🌅 Routine du matin' : '🌆 Routine du soir';
+
+  const rows = steps.map(s => `
+    <tr>
+      <td class="col-time">${fmtClock(toSec(s.start))}</td>
+      <td class="col-icon">${s.emoji}</td>
+      <td class="col-name">${s.label}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background: #fff; }
+    h1 { text-align: center; font-size: 2em; margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; font-size: 1.4em; }
+    tr { border-bottom: 2px solid #ddd; }
+    td { padding: 14px 10px; vertical-align: middle; }
+    .col-time { font-weight: bold; color: #555; width: 90px; }
+    .col-icon { font-size: 1.8em; width: 60px; text-align: center; }
+    .col-name { font-size: 1.1em; }
+    .print-btn {
+      display: block; margin: 30px auto 0; padding: 12px 40px;
+      font-size: 1.2em; cursor: pointer; background: #4d96ff;
+      color: #fff; border: none; border-radius: 8px;
+    }
+    @media print { .print-btn { display: none; } }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <table>${rows}</table>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimer</button>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
 }
 
 // ─── Démarrage ────────────────────────────────────
